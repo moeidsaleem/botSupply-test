@@ -1,0 +1,83 @@
+
+main: true
+name: "MoeidTrackerBot"
+#context: Define the variables which will used throughout the dialog flow here.
+context:
+  variables:
+    greeting: "string"
+    name: "string"
+    iResult: "nlpresult"
+    shipmentNumber: "ShipmentNumber"
+    shipment: "string"
+    shipmentList: "string"
+
+states:
+  intent:
+    component: "System.Intent"
+    properties:
+      variable: "iResult"
+    transitions:
+      actions:
+        GetShipmentNumber: "askShipmentNumber"
+        greeting: "askGreeting"
+        unresolvedIntent: "unhandled"
+        
+        
+        
+
+
+
+  askGreeting:
+    component: "System.List"
+    properties:
+      options: "Lookup shipment"
+      prompt: "Hi Welcome Trace & Track Bot. How can i help?"
+      variable: "greeting"
+
+  # checkShipmentNumber:
+  #   component: "System.ConditionExists"
+  #   properties:
+  #     variable: "shipmentNumber"
+  #   transitions:
+  #     actions:
+  #       exists: "resolveShipmentNumber"
+  #       notexists: "askShipmentNumber"
+
+  askShipmentNumber:
+    component: "System.Output"
+    properties:
+      text: "what your tracking Number?"
+    transitions: {}
+    
+  checkage:
+    component: "ShipmentChecker"
+    properties:
+      minAge: 18
+      shipment: "shipment"
+    transitions:
+      actions:
+        allow: "Shipment"
+        block: "unhandled"
+        unsupportedPayload: "unhandled"
+
+
+  Shipment:
+     component: "System.List"
+     properties:
+       options: "save"
+       prompt: "Your Shipment# ${shipment.value.id} will arrive at ${shipment.value.date}! :-)  "
+       
+  saveShipment:
+    component: "saveData"
+    properties:
+      # from is a comma-delimited list of user or context variables whose value(s) are copied.
+      shipment: "${shipment.value}"
+      # to is a comma-delimited list of user or context variables that get the copied value that’s stored in the corresponding 'from' variable.
+      shipmentList: "shipmentList"
+      
+  unhandled:
+    component: "System.Output"
+    properties:
+      text: "Sorry! I don't understand what you are saying?"
+    transitions:
+      return: done

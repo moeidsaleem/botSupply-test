@@ -1,0 +1,102 @@
+metadata:
+  platformVersion: "1.1"
+main: true
+name: "WineBot"
+context:
+  variables:
+    wineType: "WineType"
+    orderSize: "WineOrderSize"
+    iResult: "nlpresult"
+states:
+  intent:
+    component: "System.Intent"
+    properties:
+      variable: "iResult"
+    transitions:
+      actions:
+        Greeting: "greeting1"
+        OrderWine: "resolvetype"
+        CancelOrder: "cancelorder"
+        unresolvedIntent: "unresolved"
+  greeting1:
+    component: "System.Output"
+    properties:
+      text: "Hi there!"
+      keepTurn: true
+    transitions: {}
+  greeting2:
+    component: "System.Output"
+    properties:
+      text: "I'm a wine ordering bot."
+      keepTurn: true
+    transitions: {}
+  greetingEnd:
+    component: "System.Output"
+    properties:
+      text: "You can say 'Order some wine' or 'Cancel my order'."
+    transitions:
+      return: "greeting"
+  resolvetype:
+    component: "System.SetVariable"
+    properties:
+      variable: "wineType"
+      value: "${iResult.value.entityMatches['WineType'][0]}"
+    transitions: {}
+  resolveordersize:
+    component: "System.SetVariable"
+    properties:
+      variable: "orderSize"
+      value: "${iResult.value.entityMatches['WineOrderSize'][0]}"
+    transitions: {}
+  agewarning:
+    component: "System.Output"
+    properties:
+      text: "Please remeber that to order wine you need to be at least 18."
+      keepTurn: true
+    transitions: {}
+  type:
+    component: "System.List"
+    properties:
+      options: "${wineType.type.enumValues}"
+      prompt: "What type of wine would like to order?"
+      variable: "wineType"
+    transitions: {}
+  size:
+    component: "System.List"
+    properties:
+      options: "${orderSize.type.enumValues}"
+      prompt: "How many bottles do you want?"
+      variable: "orderSize"
+    transitions: {}
+  done0:
+    component: "System.Output"
+    properties:
+      text: "Thank you."
+      keepTurn: true
+    transitions: {}
+  done1:
+    component: "System.Output"
+    properties:
+      text: "Your ${wineType.value} is on its way."
+      keepTurn: true
+    transitions: {}
+  doneEnd:
+    component: "System.Output"
+    properties:
+      text: "Cheers!"
+      keepTurn: true
+    transitions:
+      return: "done"
+  cancelorder:
+    component: "System.Output"
+    properties:
+      text: "Your wine order is cancelled. Thank you."
+    transitions:
+      return: "cancelOrder"
+  unresolved:
+    component: "System.Output"
+    properties:
+      text: "Sorry, I don't understand. You can say 'Order some wine' or 'Cancel my order'."
+    transitions:
+      return: "unresolved"
+      
